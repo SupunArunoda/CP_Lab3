@@ -8,6 +8,7 @@
 #define RANDLIMIT	7	/* Magnitude limit of generated randno.*/
 #define N		10  	/* Matrix Size */
 #define NUMLIMIT 120.0
+#define THREAD_COUNT 20
 
 double matrix_A[N][N];//input matrix 1
 double matrix_B[N][N];//input matrix 2
@@ -18,7 +19,7 @@ int main(int argc, char *argv[])
 	struct timeval start, stop;
 	int i, j, k;
 
-
+	omp_set_num_threads(THREAD_COUNT);
 	/*Geenerate matrixes */
 	for (i = 0; i < N; i++){
 	for (j = 0; j < N; j++) {
