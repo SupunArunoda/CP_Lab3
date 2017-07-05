@@ -1,3 +1,4 @@
+#include <omp.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -31,14 +32,17 @@ int main(int argc, char *argv[])
 	/*Matrix multiplication*/
 	gettimeofday(&start, 0);//start the time
 
+	#pragma omp parallel shared(matrix_A, matrix_B, matrix_C) private(i, j, k)
+	{
+	#pragma omp for schedule(static)
 	for (i = 0; i < N; i++) {
 		for (j = 0; j < N; j++) {
 			matrix_C[i][j] = 0.0;
 			for (k = 0; k < N; k++)
 				matrix_C[i][j] = matrix_C[i][j] + matrix_A[i][k] * matrix_B[k][j];
-		} 
+			} 
+		}
 	}
-
 	gettimeofday(&stop, 0);//stop the time
 
 	//Consumed time
