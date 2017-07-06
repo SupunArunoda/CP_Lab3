@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
 }
 
 /*
-allocate memory for matrixes & asign values
+Allocate memory for matrixes & asign values
 */
 double **createMatrix(int value){
 	double **matrix;
@@ -59,7 +59,7 @@ double **createMatrix(int value){
 }
 
 /*
-calculate the average time consumption
+Calculate the average time consumption
 */
 void getAveragetime(){
 
@@ -75,7 +75,7 @@ void getAveragetime(){
 }
 
 /*
-calculate time for one multiplication
+Calculate time for one multiplication
 */
 double timeCalculation() {	
     srand((unsigned) time(0));
@@ -100,7 +100,7 @@ double timeCalculation() {
 }
 
 /*
-parallel multiplication
+Parallel multiplication
 */
 double **parallel_multiply(double **matrix_A,double **matrix_B,double **matrix_C){
 
@@ -118,7 +118,6 @@ for (i = 0; i < N; i++) {
 return matrix_C;
 
 }
-
 /*
 clean the matrix memory
 */

@@ -1,12 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
+#include <time.h>
+#include <assert.h>
 #include <omp.h>
 
 
 double **createMatrix(int value);
 void getAveragetime();
 double timeCalculation();
-double **parallel_multiply(double **matrix_A,double **matrix_B,double **matrix_C);
+double **sequential_multiply(double **matrix_A,double **matrix_B,double **matrix_C);
 void  empty_matrix(double **matrix);
 
 static int N;
@@ -17,30 +20,25 @@ double **matrix_B;//input matrix 2
 double **matrix_C;//output matrix
 
 int i, j, k;
-int thread_count=8;
 
 
 int main(int argc, char *argv[])
 {
-	if (argc != 3) {
+    if (argc != 3) {
         printf("Issue in arguments");
-       }else{
+    }else{
 	sscanf(argv[1], "%d", &N);
     	sscanf(argv[2], "%d", &sample_size);
-	omp_set_num_threads(thread_count);		
 	getAveragetime();
-	}
+     }
 	return(0);
 }
 
-/*
-allocate memory for matrixes & asign values
-*/
 double **createMatrix(int value){
 	double **matrix;
 	if(value==1){
 
-        matrix = (double **)malloc(sizeof(double *)*N);                                 
+        matrix = (double **)malloc(sizeof(double *)*N);                                 //memory allocate for matrix a
         for(i=0; i<N; i++)
                 matrix[i] = (double *)malloc(sizeof(double)*N);
 	for (i= 0; i< N; i++) {
@@ -50,7 +48,7 @@ double **createMatrix(int value){
     }
 
 	}else{
-	 matrix = (double **)malloc(sizeof(double *)*N);                                 
+	 matrix = (double **)malloc(sizeof(double *)*N);                                 //memory allocate for matrix a
         for(i=0; i<N; i++)
                 matrix[i] = (double *)malloc(sizeof(double)*N);
 
@@ -58,9 +56,6 @@ double **createMatrix(int value){
 	return matrix;
 }
 
-/*
-calculate the average time consumption
-*/
 void getAveragetime(){
 
     double total = 0.0;
@@ -73,22 +68,20 @@ void getAveragetime(){
     printf("Sequential time consumption : %f seconds\n", average);
 
 }
+double timeCalculation() {
 
-/*
-calculate time for one multiplication
-*/
-double timeCalculation() {	
+	
     srand((unsigned) time(0));
     double timeval, start, stop;
     matrix_A=createMatrix(1);
     matrix_B=createMatrix(1);
     matrix_C=createMatrix(0);
     start = omp_get_wtime();
-    matrix_C=parallel_multiply(matrix_A,matrix_B,matrix_C);
+    matrix_C=sequential_multiply(matrix_A,matrix_B,matrix_C);
 
     stop = omp_get_wtime();
 
-    // calculate the time consumption
+    // calculate elapsed time
     timeval = (stop - start);
 
     //empty matrix memory
@@ -98,15 +91,7 @@ double timeCalculation() {
 
     return timeval;
 }
-
-/*
-parallel multiplication
-*/
-double **parallel_multiply(double **matrix_A,double **matrix_B,double **matrix_C){
-
-#pragma omp parallel shared(matrix_A, matrix_B, matrix_C) private(i, j, k)
-{
-#pragma omp for schedule(static)	
+double **sequential_multiply(double **matrix_A,double **matrix_B,double **matrix_C){
 for (i = 0; i < N; i++) {
                 for (j = 0; j < N; j++) {
                         matrix_C[i][j] = 0.0;
@@ -114,17 +99,13 @@ for (i = 0; i < N; i++) {
                                 matrix_C[i][j] += matrix_A[i][k] * matrix_B[k][j];
                 }
         }
-}
 return matrix_C;
 
 }
-
-/*
-clean the matrix memory
-*/
 void empty_matrix(double **matrix) {
     for (i = 0; i < N; i++) {
         free(matrix[i]);
     }
     free(matrix);
 }
+

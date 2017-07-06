@@ -1,49 +1,126 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
-#include <sys/time.h>
-#include <assert.h>
+#include <omp.h>
 
-#define RANDLIMIT	7	/* Magnitude limit of generated randno.*/
-#define N		10  	/* Matrix Size */
-#define NUMLIMIT 120.0
 
-double matrix_A[N][N];//input matrix 1
-double matrix_B[N][N];//input matrix 2
-double matrix_C[N][N];//output matrix
+double **createMatrix(int value);
+void getAveragetime();
+double timeCalculation();
+double **sequential_multiply(double **matrix_A,double **matrix_B,double **matrix_C);
+void  empty_matrix(double **matrix);
+
+static int N;
+static int sample_size;
+
+double **matrix_A;//input matrix 1
+double **matrix_B;//input matrix 2
+double **matrix_C;//output matrix
+
+int i, j, k;
+
 
 int main(int argc, char *argv[])
 {
-	struct timeval start, stop;
-	int i, j, k;
-
-
-	/*Geenerate matrixes */
-	for (i = 0; i < N; i++){
-	for (j = 0; j < N; j++) {
-		matrix_A[i][j] = 1 + (int)(NUMLIMIT*rand() / (RAND_MAX + 1.0));
-		matrix_B[i][j] = (double)(rand() % RANDLIMIT);
-
-	}
-	}
-
-
-	/*Matrix multiplication*/
-	gettimeofday(&start, 0);//start the time
-
-	for (i = 0; i < N; i++) {
-		for (j = 0; j < N; j++) {
-			matrix_C[i][j] = 0.0;
-			for (k = 0; k < N; k++)
-				matrix_C[i][j] = matrix_C[i][j] + matrix_A[i][k] * matrix_B[k][j];
-		} 
-	}
-
-	gettimeofday(&stop, 0);//stop the time
-
-	//Consumed time
-	fprintf(stdout, "Time = %.6f\n\n",
-		(stop.tv_sec + stop.tv_usec*1e-6) - (start.tv_sec + start.tv_usec*1e-6));
+    if (argc != 3) {
+        printf("Issue in arguments");
+    }else{
+	sscanf(argv[1], "%d", &N);
+    	sscanf(argv[2], "%d", &sample_size);
+	getAveragetime();
+     }
 	return(0);
+}
+
+/*
+allocate memory for matrixes & asign values
+*/
+double **createMatrix(int value){
+	double **matrix;
+	if(value==1){
+
+        matrix = (double **)malloc(sizeof(double *)*N);                                 
+        for(i=0; i<N; i++)
+                matrix[i] = (double *)malloc(sizeof(double)*N);
+	for (i= 0; i< N; i++) {
+        for (j = 0; j < N; j++) {
+            matrix[i][j] = (double)rand();
+        }
+    }
+
+	}else{
+	 matrix = (double **)malloc(sizeof(double *)*N);                           
+        for(i=0; i<N; i++)
+                matrix[i] = (double *)malloc(sizeof(double)*N);
+
+	}
+	return matrix;
+}
+
+/*
+calculate the average time consumption
+*/
+void getAveragetime(){
+
+    double total = 0.0;
+
+    for (i = 0; i < sample_size; i++) {
+        total += timeCalculation();
+    }
+
+    double average = total / sample_size;
+    printf("Sequential time consumption : %f seconds\n", average);
+
+}
+
+/*
+calculate time for one multiplication
+*/
+double timeCalculation() {
+
+	
+    srand((unsigned) time(0));
+    double timeval, start, stop;
+    matrix_A=createMatrix(1);
+    matrix_B=createMatrix(1);
+    matrix_C=createMatrix(0);
+    start = omp_get_wtime();
+    matrix_C=sequential_multiply(matrix_A,matrix_B,matrix_C);
+
+    stop = omp_get_wtime();
+
+    // calculate elapsed time
+    timeval = (stop - start);
+
+    //empty matrix memory
+    empty_matrix(matrix_A);
+    empty_matrix(matrix_B);
+    empty_matrix(matrix_C);
+
+    return timeval;
+}
+
+/*
+sequential multiplication
+*/
+double **sequential_multiply(double **matrix_A,double **matrix_B,double **matrix_C){
+for (i = 0; i < N; i++) {
+                for (j = 0; j < N; j++) {
+                        matrix_C[i][j] = 0.0;
+                        for (k = 0; k < N; k++)
+                                matrix_C[i][j] += matrix_A[i][k] * matrix_B[k][j];
+                }
+        }
+return matrix_C;
+}
+
+
+/*
+clean the matrix memory
+*/
+void empty_matrix(double **matrix) {
+    for (i = 0; i < N; i++) {
+        free(matrix[i]);
+    }
+    free(matrix);
 }
 
