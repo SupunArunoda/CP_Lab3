@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <omp.h>
+#include <time.h>
 
 
 double **createMatrix(int value);
@@ -62,8 +63,8 @@ calculate the average time consumption
 void getAveragetime(){
 
     double total = 0.0;
-
-    for (i = 0; i < sample_size; i++) {
+    int p;
+    for (p = 0; p < sample_size; p++) {
         total += timeCalculation();
     }
 
@@ -84,13 +85,12 @@ double timeCalculation() {
     matrix_B=createMatrix(1);
     matrix_C=createMatrix(0);
     start = omp_get_wtime();
+
     matrix_C=sequential_multiply(matrix_A,matrix_B,matrix_C);
 
     stop = omp_get_wtime();
-
     // calculate elapsed time
     timeval = (stop - start);
-
     //empty matrix memory
     empty_matrix(matrix_A);
     empty_matrix(matrix_B);
@@ -123,4 +123,13 @@ void empty_matrix(double **matrix) {
     }
     free(matrix);
 }
+void printMatrix(double **matrix){
+for (i = 0; i < N; i++) {
+for (j = 0; j < N; j++) {
+printf("%f \t",matrix[i][j]);
+    }
+printf("\n");
+    }
 
+}
+	
