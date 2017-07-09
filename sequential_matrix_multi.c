@@ -9,6 +9,7 @@ void getAveragetime();
 double timeCalculation();
 double **sequential_multiply(double **matrix_A,double **matrix_B,double **matrix_C);
 void  empty_matrix(double **matrix);
+void printMatrix(double **matrix);
 
 static int N;
 static int sample_size;
@@ -22,13 +23,12 @@ int i, j, k;
 
 int main(int argc, char *argv[])
 {
-    if (argc != 3) {
-        printf("Issue in arguments");
-    }else{
-	sscanf(argv[1], "%d", &N);
-    	sscanf(argv[2], "%d", &sample_size);
+	
+	sample_size=50;
+
+	for(N=200;N<=2000;N+=200){
 	getAveragetime();
-     }
+	}
 	return(0);
 }
 
@@ -44,7 +44,7 @@ double **createMatrix(int value){
                 matrix[i] = (double *)malloc(sizeof(double)*N);
 	for (i= 0; i< N; i++) {
         for (j = 0; j < N; j++) {
-            matrix[i][j] = (double)rand();
+            matrix[i][j] = (double)rand()/1000;
         }
     }
 
@@ -69,7 +69,7 @@ void getAveragetime(){
     }
 
     double average = total / sample_size;
-    printf("Sequential time consumption : %f seconds\n", average);
+    printf("Sequential time consumption matrix size : %d time : %f seconds\n", N,average);
 
 }
 
@@ -89,8 +89,9 @@ double timeCalculation() {
     matrix_C=sequential_multiply(matrix_A,matrix_B,matrix_C);
 
     stop = omp_get_wtime();
-    // calculate elapsed time
+
     timeval = (stop - start);
+
     //empty matrix memory
     empty_matrix(matrix_A);
     empty_matrix(matrix_B);
@@ -122,14 +123,4 @@ void empty_matrix(double **matrix) {
         free(matrix[i]);
     }
     free(matrix);
-}
-void printMatrix(double **matrix){
-for (i = 0; i < N; i++) {
-for (j = 0; j < N; j++) {
-printf("%f \t",matrix[i][j]);
-    }
-printf("\n");
-    }
-
-}
-	
+}	

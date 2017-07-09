@@ -10,8 +10,8 @@ double timeCalculation();
 double **parallel_multiply(double **matrix_A,double **matrix_B,double **matrix_C);
 void  empty_matrix(double **matrix);
 
-static int N;
-static int sample_size;
+int N;
+int sample_size;
 
 double **matrix_A;//input matrix 1
 double **matrix_B;//input matrix 2
@@ -23,11 +23,8 @@ int thread_count=8;
 
 int main(int argc, char *argv[])
 {
-	if (argc != 3) {
-        printf("Issue in arguments");
-       }else{
-	sscanf(argv[1], "%d", &N);
-    	sscanf(argv[2], "%d", &sample_size);
+	sample_size=50;
+	for(N=200;N<=2000;N+=200){
 	omp_set_num_threads(thread_count);		
 	getAveragetime();
 	}
@@ -71,7 +68,7 @@ void getAveragetime(){
     }
 
     double average = total / sample_size;
-    printf("Parallel time consumption : %f seconds\n", average);
+    printf("Parallel time consumption matrix size %d : %f seconds\n", N,average);
 
 }
 
@@ -104,7 +101,6 @@ parallel multiplication
 */
 double **parallel_multiply(double **matrix_A,double **matrix_B,double **matrix_C){
 
-//#pragma omp for schedule(static)
 #pragma omp parallel for private(i, j, k)
 for (i = 0; i < N; i++) {
                 for (j = 0; j < N; j++) {
@@ -127,10 +123,3 @@ void empty_matrix(double **matrix) {
     }
     free(matrix);
 }
-void printMatrix(double **matrix){
-for (i = 0; i < N; i++) {
-for (j = 0; j < N; j++) {
-printf("%f \t",matrix[i][j]);
-    }
-printf("\n");
-    }}
